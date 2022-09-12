@@ -8,7 +8,7 @@ path = "about"
 
 Welcome. I hardly develop and occasionally write but when I do, you can find them here.
 
-Hit me on [LinkedIn](https://www.linkedin.com/in/roopeshvs) if you want to have a chat about Cloud & Devops or need guidance on reaching Immortal in Dota 2 or get a random useless fact stuck forever in your head. Here's one:
+Hit me on [LinkedIn](https://www.linkedin.com/in/roopesh-vs) if you want to have a chat about Cloud & Devops or need guidance on reaching Immortal in Dota 2 or get a random useless fact stuck forever in your head. Here's one:
 
 ### Canary Birds & Deployments
 
