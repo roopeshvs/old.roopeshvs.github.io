@@ -34,8 +34,6 @@ favicon = "/icon/favicon.png"
 
 copyright = "reophos"
 
-ga = "G-6YGDB8SLBT"
-
 [extra.translations]
 languages = [{name = "en", url = "/"}]
 
