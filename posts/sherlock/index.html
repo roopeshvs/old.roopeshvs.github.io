@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+    <title>
+        How Sherlock knows if you are on Facebook
+    </title>
+    
+
+    
+         <link rel="icon" type="image/png" href=&#x2F;icon&#x2F;favicon.png />
+    
+
+    
+        <title>Home</title>
+    
+
+    
+
+    
+
+    
+
+    
+    
+        <script src=https://pesh.me/js/feather.min.js></script>
+    
+
+
+    
+        <link href=https://pesh.me/css/fonts.css rel="stylesheet" />
+    
+
+    <link rel="stylesheet" type="text/css" media="screen" href=https://pesh.me/css/main.css />
+
+    
+        <link
+            rel="stylesheet"
+            id="darkModeStyle"
+            type="text/css"
+            href=https://pesh.me/css/dark.css
+            
+            
+                disabled
+            
+        />
+    
+
+
+    
+
+
+</head>
+
+
+<body>
+    <div class="content">
+        <header>
+    <div class="main" id="main_title">
+        <a href=https:&#x2F;&#x2F;pesh.me>@roopeshvs</a>
+    </div>
+
+    <nav>
+        
+            <a href=&#x2F;>Home</a>
+        
+            <a href=&#x2F;posts>Posts</a>
+        
+            <a href=&#x2F;about>About</a>
+        
+
+        
+            |
+
+            
+                <a href=&#x2F;>en</a>
+            
+        
+
+        
+            | <a id="dark-mode-toggle" onclick="toggleTheme()" href=""></a>
+            <script src=https://pesh.me/js/themetoggle.js></script>
+        
+    </nav>
+    <script data-goatcounter="https://reophos.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</header>
+
+
+        
+    
+<main>
+    <article>
+        <div class="title">
+            <h1 class="title">How Sherlock knows if you are on Facebook</h1>
+            <div class="meta">
+                
+                on  2022-09-12
+
+                
+            </div>
+        </div>
+
+        
+
+        <section class="body">
+            <p><a href="https://github.com/sherlock-project/sherlock">Sherlock</a> is a CLI tool that can be used to find usernames across many social networks. In this post, I share how Sherlock was able to overcome a couple of hurdles in reliably finding if a username existed on Facebook. Sherlock works by having <a href="https://github.com/sherlock-project/sherlock/blob/master/sherlock/resources/data.json">a JSON file as the source</a> where a large collection of sites are listed with a few attributes. </p>
+<p>A sample entry from the file looks like this:</p>
+<pre data-lang="json" style="background-color:#2b303b;color:#c0c5ce;" class="language-json "><code class="language-json" data-lang="json"><span>&quot;</span><span style="color:#a3be8c;">Reddit</span><span>&quot;: {
+</span><span>    &quot;</span><span style="color:#a3be8c;">errorMsg</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">Sorry, nobody on Reddit goes by that name.</span><span>&quot;,
+</span><span>    &quot;</span><span style="color:#a3be8c;">errorType</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">message</span><span>&quot;,
+</span><span>    </span><span style="background-color:#bf616a;color:#2b303b;">...</span><span>
+</span><span>    &quot;</span><span style="color:#a3be8c;">url</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">https://www.reddit.com/user/{}</span><span>&quot;,
+</span><span>    &quot;</span><span style="color:#a3be8c;">urlMain</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">https://www.reddit.com/</span><span>&quot;,
+</span><span>    </span><span style="background-color:#bf616a;color:#2b303b;">...</span><span>
+</span><span>  }
+</span></code></pre>
+<p>Each site has its own way of handling usernames that do not exist. To know if a particular username is on the site, Sherlock sends a request to the URL defined in the <code>url</code> or the <code>urlProbe</code> field and evaluates the response depending on the type of error defined in the <code>errorType</code> field. The <code>errorType</code> field could be one of <code>status_code</code> - HTTP Response Error Codes, <code>message</code> - HTTP Response Body that says there is no user by that username or <code>response_url</code> - Redirecting to a different page if the username is not found, depending on the method appropriate for consistently finding users without false positives. </p>
+<p>Sherlock was using the <code>status_code</code> error type to figure out if the username existed on Facebook.</p>
+<pre data-lang="json" style="background-color:#2b303b;color:#c0c5ce;" class="language-json "><code class="language-json" data-lang="json"><span>&quot;</span><span style="color:#a3be8c;">Facebook</span><span>&quot;: {
+</span><span>    &quot;</span><span style="color:#a3be8c;">errorType</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">status_code</span><span>&quot;,
+</span><span>    </span><span style="background-color:#bf616a;color:#2b303b;">...</span><span>
+</span><span>    &quot;</span><span style="color:#a3be8c;">url</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">https://www.facebook.com/{}</span><span>&quot;,
+</span><span>    &quot;</span><span style="color:#a3be8c;">urlMain</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">https://www.facebook.com/</span><span>&quot;,
+</span><span>    </span><span style="background-color:#bf616a;color:#2b303b;">...</span><span>
+</span><span>  }
+</span></code></pre>
+<p><a href="https://github.com/sherlock-project/sherlock/issues/725">One user raised a GitHub issue</a> saying Sherlock could not find his username on Facebook. I vividly remembered Sherlock being able to find my username on Facebook. </p>
+<p>Probing into this mystery, I discovered there was a privacy setting on Facebook that disallowed search engines outside of Facebook to link to one's profile.</p>
+<p align="center">
+<a target='_blank'><img src='https://i.postimg.cc/L4rXh8xg/fb.png' border='0' alt='fb'/></a>
+</p>
+<p>Only when the search engines were allowed to link to one's facebook profile at <code>facebook.com/{username}</code>, the requests to that profile returned <code>200 OK</code> otherwise even when a user with that username existed on facebook the response was <code>404 NOT FOUND</code>. This is why the status code approach was inconsistent.</p>
+<p>One of the trivial ways to bypass this issue would be to login to facebook and then check for the username. However, for Sherlock, authenticating was not an option!</p>
+<p>I wanted to check if there was a profile path Sherlock can reliably use without authenticating that would also bypass the privacy option. With turning on and off the privacy option on my facebook profile, I started testing various paths like <code>/about</code>, <code>/images</code>, <code>/photo</code> and their responses. </p>
+<p>Few minutes into the search I stumbled upon <code>/videos</code> and I was able to see my expectations come alive. <code>facebook.com/{username}/videos</code> showed the login page when the username existed and only responded with <code>This page isn't available</code> when the username was not yet taken on Facebook. As this path did not care for the search engine privacy option as well, it was perfect!</p>
+<p><a href="https://github.com/sherlock-project/sherlock/pull/737">The site resource file was updated to check</a> for an error message &amp; use the <code>/videos</code> path and voila! This now allows Sherlock to check if a username is on facebook without authentication and irrespective of the search engine privacy option they've opted to go with. </p>
+<pre data-lang="json" style="background-color:#2b303b;color:#c0c5ce;" class="language-json "><code class="language-json" data-lang="json"><span>&quot;</span><span style="color:#a3be8c;">Facebook</span><span>&quot;: {
+</span><span>    &quot;</span><span style="color:#a3be8c;">errorMsg</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">This page isn&#39;t available</span><span>&quot;,
+</span><span>    &quot;</span><span style="color:#a3be8c;">errorType</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">message</span><span>&quot;,
+</span><span>    </span><span style="background-color:#bf616a;color:#2b303b;">...</span><span>
+</span><span>    &quot;</span><span style="color:#a3be8c;">urlProbe</span><span>&quot;: &quot;</span><span style="color:#a3be8c;">https://www.facebook.com/{}/videos/</span><span>&quot;,
+</span><span>    </span><span style="background-color:#bf616a;color:#2b303b;">...</span><span>
+</span><span>  }
+</span></code></pre>
+<blockquote>
+<p>Elementary</p>
+</blockquote>
+<p>but hey, it works.</p>
+
+        </section>
+
+        
+
+    </article>
+</main>
+
+
+
+        <footer>
+  <div style="display:flex">
+    
+        <a class="soc" href=https:&#x2F;&#x2F;github.com&#x2F;roopeshvs title=GitHub>
+            <i data-feather=github></i>
+        </a>
+    
+        <a class="soc" href=https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;roopesh-vs title=LinkedIn>
+            <i data-feather=linkedin></i>
+        </a>
+    
+  </div>
+  <div class="footer-info">
+    2022 © reophos 
+    <!-- | <a
+      href="https://github.com/XXXMrG/archie-zola">Archie-Zola Theme</a> -->
+  </div>
+</footer>
+
+
+<script>
+    feather.replace();
+</script>
+
+
+    </div>
+</body>
+
+</html>
